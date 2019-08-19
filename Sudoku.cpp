@@ -8,9 +8,8 @@
 
 using namespace std;
 
-// Searches the grid to find an entry that is still unassigned. If found, the reference parameters row, col will be
-// set the location that is unassigned, and true is returned. If no unassigned entries remain, false is returned
-bool FindUnassignedLocation(int grid[N][N], int &row, int &col) {
+// Is there any 0s?
+bool Sudoku::findEmptyValues(int grid[N][N], int &row, int &col) {
     for (row = 0; row < N; row++)
         for (col = 0; col < N; col++)
             if (grid[row][col] == UNASSIGNED)
@@ -18,24 +17,24 @@ bool FindUnassignedLocation(int grid[N][N], int &row, int &col) {
     return false;
 }
 
-// Returns a boolean which indicates whether an assigned entry in the specified row matches the given number
-bool UsedInRow(int grid[N][N], int row, int num) {
+// Is it used in that row?
+bool Sudoku::isUsedInRow(int grid[N][N], int row, int num) {
     for (int col = 0; col < N; col++)
         if (grid[row][col] == num)
             return true;
     return false;
 }
 
-// Returns a boolean which indicates whether an assigned entry in the specified column matches the given number
-bool UsedInCol(int grid[N][N], int col, int num) {
+// Is it used in that column?
+bool Sudoku::isUsedInCol(int grid[N][N], int col, int num) {
     for (int row = 0; row < N; row++)
         if (grid[row][col] == num)
             return true;
     return false;
 }
 
-// Returns a boolean which indicates whether an assigned entry within the specified 3x3 box matches the given number
-bool UsedInBox(int grid[N][N], int boxStartRow, int boxStartCol, int num) {
+// Is it already present in the MxM grid?
+bool Sudoku::isUsedInBox(int grid[N][N], int boxStartRow, int boxStartCol, int num) {
     for (int row = 0; row < M; row++)
         for (int col = 0; col < M; col++)
             if (grid[row + boxStartRow][col + boxStartCol] == num)
@@ -43,22 +42,21 @@ bool UsedInBox(int grid[N][N], int boxStartRow, int boxStartCol, int num) {
     return false;
 }
 
-// Returns a boolean which indicates whether it will be legal to assign num to the given row, col location
-bool isSafe(int grid[N][N], int row, int col, int num) {
-    return !UsedInRow(grid, row, num) && !UsedInCol(grid, col, num) &&
-           !UsedInBox(grid, row - row % M, col - col % M, num)
+// Checks given row, column and MxM grid
+bool Sudoku::isValid(int grid[N][N], int row, int col, int num) {
+    return !Sudoku::isUsedInRow(grid, row, num) && !Sudoku::isUsedInCol(grid, col, num) &&
+           !Sudoku::isUsedInBox(grid, row - row % M, col - col % M, num)
            && grid[row][col] == UNASSIGNED;
 }
 
-// Takes a partially filled-in grid and attempts to assign values to all unassigned locations in such a way to meet
-// the requirements for Sudoku solution (non-duplication across rows, columns, and boxes)
-bool SolveSudoku(int grid[N][N]) {
+// Real function to solve - it uses the stack with recursion
+bool Sudoku::realSolve(int grid[N][N]) {
     int row, col;
-    if (!FindUnassignedLocation(grid, row, col)) return true;
+    if (!Sudoku::findEmptyValues(grid, row, col)) return true;
     for (int num = 1; num <= N; num++)
-        if (isSafe(grid, row, col, num)) {
+        if (Sudoku::isValid(grid, row, col, num)) {
             grid[row][col] = num;
-            if (SolveSudoku(grid)) return true;
+            if (Sudoku::realSolve(grid)) return true;
             grid[row][col] = UNASSIGNED;
         }
     return false;
@@ -94,7 +92,7 @@ void Sudoku::printSolution() {
 }
 
 enum Solvable Sudoku::solve() {
-    if(SolveSudoku(Sudoku::solution)) {
+    if(Sudoku::realSolve(Sudoku::solution)) {
         Sudoku::s = Solved;
         return Sudoku::s;
     } else {

@@ -2,7 +2,7 @@
 #define M 3
 #define N 9
 
-#include <bits/stdc++.h>
+#include <iostream>
 #include <string>
 #include "Sudoku.h"
 
