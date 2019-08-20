@@ -21,6 +21,7 @@ enum Solvable {
 
 class Sudoku {
 private:
+    int recursion_times = 0;
     int grid[N][N];
     int solution[N][N];
     enum Solvable s = NotSolved;

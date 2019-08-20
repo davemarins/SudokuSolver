@@ -2,6 +2,7 @@
 // Created by davide on 19/08/19.
 //
 
+#include <chrono>
 #include <cstdlib>
 #include <iostream>
 #include "Sudoku.h"
@@ -51,6 +52,7 @@ bool Sudoku::isValid(int grid[N][N], int row, int col, int num) {
 
 // Real function to solve - it uses the stack with recursion
 bool Sudoku::realSolve(int grid[N][N]) {
+    Sudoku::recursion_times++;
     int row, col;
     if (!Sudoku::findEmptyValues(grid, row, col)) return true;
     for (int num = 1; num <= N; num++)
@@ -74,6 +76,7 @@ Sudoku::Sudoku(string filename) {
 }
 
 void Sudoku::printGrid() {
+    cout << endl;
     for (int row = 0; row < N; row++) {
         for (int col = 0; col < N; col++)
             cout << Sudoku::grid[row][col] << "\t";
@@ -83,6 +86,7 @@ void Sudoku::printGrid() {
 }
 
 void Sudoku::printSolution() {
+    cout << endl;
     for (int row = 0; row < N; row++) {
         for (int col = 0; col < N; col++)
             cout << Sudoku::solution[row][col] << "\t";
@@ -92,7 +96,13 @@ void Sudoku::printSolution() {
 }
 
 enum Solvable Sudoku::solve() {
+    Sudoku::recursion_times = 0;
+    auto start = chrono::high_resolution_clock::now();
     if(Sudoku::realSolve(Sudoku::solution)) {
+        auto stop = chrono::high_resolution_clock::now();
+        auto duration = chrono::duration_cast<std::chrono::microseconds>(stop - start);
+        cout << "Sudoku solved in " << Sudoku::recursion_times << " recursions" << endl;
+        cout << "Time needed to solve: " << duration.count() << " microseconds" << endl;
         Sudoku::s = Solved;
         return Sudoku::s;
     } else {
